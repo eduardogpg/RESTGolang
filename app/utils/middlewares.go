@@ -2,7 +2,6 @@ package utils
 
 import (
   "net/http"
-  "fmt"
 )
 
 type functionHandler func(w http.ResponseWriter, r *http.Request)
@@ -17,6 +16,6 @@ func MiddlewareFunc(function functionHandler) http.Handler {
 
 func MiddlewareHandle(handler http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-     handler.ServeHTTP(w, r) (w, r)
+     handler.ServeHTTP(w, r)
   })
 }
