@@ -1,16 +1,11 @@
 package main
 
 import(
-  "log"
-  "fmt"
-  
-	"./app"
+	"./models"
+	"fmt"
 )
 
 func main() {
-  
-  server := app.CreateServer()
-
-  fmt.Println("Servidor a la escucha en el puerto 3000" )
-	log.Fatal(server.ListenAndServe())
+	models.CreateConnection()
+	defer models.CloseConnection()
 }
