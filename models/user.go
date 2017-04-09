@@ -28,12 +28,12 @@ func (this *User) Save(){
   
 func (this *User) Delete(){
   sql := "DELETE FROM users WHERE id=?"
-  executeSql(sql, this.Id)
+  modifyData(sql, this.Id)
 }
 
 func (this *User) update(){
   sql := "UPDATE users SET username=?,password=?,email=? WHERE id=?"
-  executeSql(sql, this.Username, this.Password, this.Email, this.Id)
+  modifyData(sql, this.Username, this.Password, this.Email, this.Id)
 }
 
 func (this *User) insert(){
@@ -41,21 +41,26 @@ func (this *User) insert(){
   this.Id = insertData(sql, this.Username, this.Password, this.Email)
 }
 
+func (this *User) SetPassword(password string){
+  this.Password = password
+}
+
 func NewUser(username, password, email string) User{
   user := User{Username: username, Email: email}
-  user.Password = password
+  user.SetPassword(password)
   return user 
 }
 
 func CreateUser(username, password, email string) User{
   user := NewUser(username, password, email)
+  user.Save()
   return user
 }
 
 func GetUser(id int) User{
   sql := "SELECT id, username, email FROM users WHERE id=?"
   user := User{}
-  row := executeQuery(sql, id)
+  row := query(sql, id)
   for row.Next() {
     row.Scan(&user.Id, &user.Username, &user.Email)
   }
@@ -64,7 +69,7 @@ func GetUser(id int) User{
 
 func GetUsers() Users{
   sql := "SELECT id, username, email FROM users"
-  row := executeQuery(sql)
+  row := query(sql)
   users := Users{}
 
   for row.Next() {

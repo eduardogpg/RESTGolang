@@ -7,15 +7,14 @@ package models
 import (
   _ "github.com/go-sql-driver/mysql" 
   "database/sql"
-  "log"
 )
 
-var connection *sql.DB
-const engineSQL string = "mysql"
+var db *sql.DB
+const DataEngine string = "mysql"
 
-const username string = "root"
-const password string = ""
-const database string = "REST_GOLANG"
+const Username string = "root"
+const Password string = ""
+const DataName string = "REST_GOLANG"
 
 func InitializeDatabase(){
   createConnection()
@@ -23,20 +22,20 @@ func InitializeDatabase(){
 }
 
 func createConnection(){
-  url := getDatabaseURL()
-  if db, err := sql.Open(engineSQL, url); err != nil{
-    log.Fatal(err)
+  url := GetDatabaseURL()
+  if connection, err := sql.Open(DataEngine, url); err != nil{
+    panic(err)
   }else{
-    connection = db
+    db = connection
   }
 }
 
 func CloseConnection(){
-  connection.Close()
+  db.Close()
 }
 
-func getDatabaseURL() string{
-  return username + ":" + password + "@/" + database + "?charset=utf8"
+func GetDatabaseURL() string{
+  return Username + ":" + Password + "@/" + DataName + "?charset=utf8"
 }
 
 func createTables(){
@@ -45,33 +44,38 @@ func createTables(){
 
 func createTable(table, schema string){
   if !existsTable(table) {
-    if _, err := connection.Exec(schema); err != nil{
-      panic(err)
-    }
+    execute(schema)
+  }else{
+    truncateTable(table)
   }
 }
 
+func truncateTable(table string){
+  execute("TRUNCATE " + table )
+}
+
 func existsTable(table string) bool{
-  rows := executeQuery( "SHOW TABLES LIKE " + table )
+  rows := query( "SHOW TABLES LIKE '" + table + "'")
   return rows.Next()
 }
 
 // https://golang.org/pkg/database/sql/#DB.Exec
 func insertData(query string, args ...interface{}) int64{
-  result := executeSql(query, args...)
+  result := execute(query, args...)
   id, _ := result.LastInsertId()
   return id
 }
 
-func insertData(query string, args ...interface{}) int64{
-  result := executeSql(query, args...)
-  id, _ := result.LastInsertId()
-  return id
+func modifyData(query string, args ...interface{}) int64{
+  res := execute(query, args...)
+  rows, _ := res.RowsAffected()
+  return rows
 }
+
 
 //Exec executes a query without returning any rows. 
-func executeSql(query string, args ...interface{}) sql.Result {
-  if result, err := connection.Exec(query, args...); err != nil{
+func execute(query string, args ...interface{}) sql.Result {
+  if result, err := db.Exec(query, args...); err != nil{
     panic(err)
   }else{
     return result
@@ -79,11 +83,11 @@ func executeSql(query string, args ...interface{}) sql.Result {
 }
 
 // Query executes a query that returns rows
-func executeQuery(query string, args ...interface{}) *sql.Rows {
-  if result, err := connection.Query(query, args...); err != nil{
+func query(query string, args ...interface{}) *sql.Rows {
+  if rows, err := db.Query(query, args...); err != nil{
     panic(err)
   }else{
-    return result
+    return rows
   }
 }
 
