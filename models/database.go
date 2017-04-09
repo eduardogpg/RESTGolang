@@ -1,7 +1,8 @@
 package models
 
-// Documentation
-// https://golang.org/pkg/database/sql/
+// Dcumentation >> https://golang.org/pkg/database/sql/
+// The sql package must be used in conjunction with a database driver. 
+// https://github.com/golang/go/wiki/SQLDrivers
 
 import (
   _ "github.com/go-sql-driver/mysql" 
@@ -16,13 +17,17 @@ const username string = "root"
 const password string = ""
 const database string = "REST_GOLANG"
 
-func CreateConnection(){
+func InitializeDatabase(){
+  createConnection()
+  createTables()
+}
+
+func createConnection(){
   url := getDatabaseURL()
   if db, err := sql.Open(engineSQL, url); err != nil{
     log.Fatal(err)
   }else{
     connection = db
-    createTables()
   }
 }
 
@@ -39,7 +44,7 @@ func createTables(){
 }
 
 func createTable(table, schema string){
-  if existsTable(table) == false{
+  if !existsTable(table) {
     if _, err := connection.Exec(schema); err != nil{
       panic(err)
     }
@@ -47,11 +52,8 @@ func createTable(table, schema string){
 }
 
 func existsTable(table string) bool{
-  if rows, err := connection.Query("SHOW TABLES LIKE '"+ table +"' "); err != nil{
-    panic(err)
-  }else{
-    return rows.Next()
-  }
+  rows := executeQuery( "SHOW TABLES LIKE " + table )
+  return rows.Next()
 }
 
 // https://golang.org/pkg/database/sql/#DB.Exec
@@ -61,6 +63,13 @@ func insertData(query string, args ...interface{}) int64{
   return id
 }
 
+func insertData(query string, args ...interface{}) int64{
+  result := executeSql(query, args...)
+  id, _ := result.LastInsertId()
+  return id
+}
+
+//Exec executes a query without returning any rows. 
 func executeSql(query string, args ...interface{}) sql.Result {
   if result, err := connection.Exec(query, args...); err != nil{
     panic(err)
@@ -69,8 +78,14 @@ func executeSql(query string, args ...interface{}) sql.Result {
   }
 }
 
-
-
+// Query executes a query that returns rows
+func executeQuery(query string, args ...interface{}) *sql.Rows {
+  if result, err := connection.Query(query, args...); err != nil{
+    panic(err)
+  }else{
+    return result
+  }
+}
 
 
 

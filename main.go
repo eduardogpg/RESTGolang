@@ -8,4 +8,6 @@ import(
 func main() {
 	models.CreateConnection()
 	defer models.CloseConnection()
+
+	models.CreateUsers()
 }
