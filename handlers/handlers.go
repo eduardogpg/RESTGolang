@@ -47,22 +47,22 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	userResponse := models.User{}
+	userRequest := models.User{}
 	decoder := json.NewDecoder(r.Body)
 
-	if err := decoder.Decode(&userResponse); err != nil{
+	if err := decoder.Decode(&userRequest); err != nil{
 		models.SendUnprocessableEntity(w)
 		return
 	}
 
-	user.Username = userResponse.Username
-	user.SetPassword(userResponse.Username)
-	user.Email = userResponse.Email
+	user.Username = userRequest.Username
+	user.SetPassword(userRequest.Username)
+	user.Email = userRequest.Email
 	user.Save()
 	models.SendData(w, user)
 }
 
-// curl -X PUT http://localhost:8000/api/v1/users/1 
+// curl -X DELETE http://localhost:8000/api/v1/users/1 
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
 		models.SendNotFound(w)

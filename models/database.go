@@ -7,6 +7,7 @@ package models
 import (
   _ "github.com/go-sql-driver/mysql" 
   "database/sql"
+  "log"
 )
 
 var db *sql.DB
@@ -55,40 +56,45 @@ func truncateTable(table string){
 }
 
 func existsTable(table string) bool{
-  rows := query( "SHOW TABLES LIKE '" + table + "'")
+  rows, _ := query( "SHOW TABLES LIKE '" + table + "'")
   return rows.Next()
 }
 
 // https://golang.org/pkg/database/sql/#DB.Exec
-func insertData(query string, args ...interface{}) int64{
-  result := execute(query, args...)
-  id, _ := result.LastInsertId()
-  return id
+func insertData(query string, args ...interface{}) (int64, error){
+  if result, err := execute(query, args...); err != nil{
+    return int64(0), err
+  }else{
+    id, _ := result.LastInsertId()
+    return id, nil
+  }
 }
 
-func modifyData(query string, args ...interface{}) int64{
-  res := execute(query, args...)
-  rows, _ := res.RowsAffected()
-  return rows
+func modifyData(query string, args ...interface{}) (int64, error){
+  if result, err := execute(query, args...); err != nil{
+    return int64(0), err
+  }else{
+    rows, _ := result.RowsAffected()
+    return rows, nil
+  }
 }
-
 
 //Exec executes a query without returning any rows. 
-func execute(query string, args ...interface{}) sql.Result {
-  if result, err := db.Exec(query, args...); err != nil{
-    panic(err)
-  }else{
-    return result
+func execute(query string, args ...interface{}) (sql.Result, error){
+  result, err := db.Exec(query, args...)
+  if err != nil{
+    log.Println(err)
   }
+  return result, err
 }
 
 // Query executes a query that returns rows
-func query(query string, args ...interface{}) *sql.Rows {
-  if rows, err := db.Query(query, args...); err != nil{
-    panic(err)
-  }else{
-    return rows
+func query(query string, args ...interface{}) (*sql.Rows, error) {
+  rows, err := db.Query(query, args...)
+  if err != nil{
+    log.Println(err)
   }
+  return rows, err
 }
 
 
