@@ -33,6 +33,7 @@ func TestNewUser(t *testing.T) {
   if user.Username != "test"{
     t.Error("No es posible crear el usuario.", nil)
   }
+  t.Log("Perfecto!")
 }
 
 func TestCreateUser(t *testing.T){
@@ -48,12 +49,5 @@ func TestUniqueUser(t *testing.T){
     t.Error(nil, err)
   }
 }
-
-
-/*
-  1.- Establecer password
-  2.- Unique
-  3.- 
-*/
 
 

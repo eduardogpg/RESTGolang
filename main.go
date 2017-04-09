@@ -6,6 +6,8 @@ import(
 	"github.com/gorilla/mux"
 	"./handlers"
 	"./models"
+
+	_ "fmt"
 )
 
 func main() {

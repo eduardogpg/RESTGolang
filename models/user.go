@@ -7,7 +7,6 @@ type User struct{
 	Username 	string	`json:"username"`
 	Password 	string	`json:"password"`
   Email     string  `json:"email"`
-  errors    error
 }
 
 type Users []User
@@ -19,45 +18,43 @@ const UserSchema string = `CREATE TABLE users (
         email VARCHAR(50),
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`
 
-func (this *User) Save(){
+func (this *User) Save() bool{
   if this.Id > 0{
-    this.update()
+    return this.update()
   }else{
-    this.insert()
+    return this.insert()
   }
 }
 
 /*No Golang Way*/
 func (this *User) Delete(){
   sql := "DELETE FROM users WHERE id=?"
-  _, this.errors = modifyData(sql, this.Id)
+  modifyData(sql, this.Id)
 }
 
-func (this *User) update(){
+func (this *User) update() bool {
   sql := "UPDATE users SET username=?,password=?,email=? WHERE id=?"
-  _, this.errors = modifyData(sql, this.Username, this.Password, this.Email, this.Id)
+  rows, _ := modifyData(sql, this.Username, this.Password, this.Email, this.Id)
+  return rows > 0
 }
 
-func (this *User) insert(){
+func (this *User) insert() bool {
   sql := "INSERT users SET username=?,password=?,email=?"
-  this.Id, this.errors = insertData(sql, this.Username, this.Password, this.Email)
+  this.Id, _ = insertData(sql, this.Username, this.Password, this.Email)
+  return this.Id > 0
 }
 
 func (this *User) SetPassword(password string){
   this.Password = password
 }
 
-func (this *User) GetErrors() error{
-  return this.errors
-}
-
-func NewUser(username, password, email string) User{
-  user := User{Username: username, Email: email, errors: nil}
+func NewUser(username, password, email string) *User{
+  user :=&User{Username: username, Email: email }
   user.SetPassword(password)
   return user 
 }
 
-func CreateUser(username, password, email string) User{
+func CreateUser(username, password, email string) *User{
   user := NewUser(username, password, email)
   user.Save()
   return user

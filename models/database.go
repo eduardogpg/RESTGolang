@@ -25,7 +25,7 @@ func InitializeDatabase(){
 func createConnection(){
   url := GetDatabaseURL()
   if connection, err := sql.Open(DataEngine, url); err != nil{
-    panic(err)
+    panic(err) //If we do not have access to the database, why continue with the program?
   }else{
     db = connection
   }
@@ -60,7 +60,6 @@ func existsTable(table string) bool{
   return rows.Next()
 }
 
-// https://golang.org/pkg/database/sql/#DB.Exec
 func insertData(query string, args ...interface{}) (int64, error){
   if result, err := execute(query, args...); err != nil{
     return int64(0), err
@@ -92,7 +91,7 @@ func execute(query string, args ...interface{}) (sql.Result, error){
 func query(query string, args ...interface{}) (*sql.Rows, error) {
   rows, err := db.Query(query, args...)
   if err != nil{
-    log.Println(err)
+    log.Println(err) //panic
   }
   return rows, err
 }
