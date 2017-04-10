@@ -18,9 +18,9 @@ func GetUsers(w http.ResponseWriter, r *http.Request){
 // curl -X GET http://localhost:8000/api/v1/users/1
 func GetUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
-		models.SendNotFound(w)
+		SendNotFound(w)
 	}else{
-		models.SendData(w, user)
+		SendData(w, user)
 	}
 }
 
@@ -34,7 +34,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 	}else{
 		user.SetPassword(user.Password)
 		user.Save()
-		models.SendData(w, user)
+		SendData(w, user)
 	}
 }
 
@@ -43,7 +43,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	user, err := getUserByRequest(r)
 	
 	if err != nil{
-		models.SendNotFound(w)
+		SendNotFound(w)
 		return
 	}
 
@@ -51,7 +51,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&userRequest); err != nil{
-		models.SendUnprocessableEntity(w)
+		SendUnprocessableEntity(w)
 		return
 	}
 
@@ -59,16 +59,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	user.SetPassword(userRequest.Username)
 	user.Email = userRequest.Email
 	user.Save()
-	models.SendData(w, user)
+	SendData(w, user)
 }
 
 // curl -X DELETE http://localhost:8000/api/v1/users/1 
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
-		models.SendNotFound(w)
+		SendNotFound(w)
 	}else{
 		user.Delete()
-		models.SendNoContent(w)
+		SendNoContent(w)
 	}
 }
 

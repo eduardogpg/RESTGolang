@@ -5,26 +5,23 @@ package models
 // https://github.com/golang/go/wiki/SQLDrivers
 
 import (
-  _ "github.com/go-sql-driver/mysql" 
-  "database/sql"
   "log"
+  "../config"
+  "database/sql"
+  _ "github.com/go-sql-driver/mysql" 
+  
 )
 
 var db *sql.DB
-const DataEngine string = "mysql"
 
-const Username string = "root"
-const Password string = ""
-const DataName string = "REST_GOLANG"
-
-func InitializeDatabase(){
+func init(){
   createConnection()
   createTables()
 }
 
 func createConnection(){
-  url := GetDatabaseURL()
-  if connection, err := sql.Open(DataEngine, url); err != nil{
+  url := config.UrlDatabase()
+  if connection, err := sql.Open("mysql", url); err != nil{
     panic(err) //If we do not have access to the database, why continue with the program?
   }else{
     db = connection
@@ -33,10 +30,6 @@ func createConnection(){
 
 func CloseConnection(){
   db.Close()
-}
-
-func GetDatabaseURL() string{
-  return Username + ":" + Password + "@/" + DataName + "?charset=utf8"
 }
 
 func createTables(){
