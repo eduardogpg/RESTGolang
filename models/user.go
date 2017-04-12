@@ -11,13 +11,6 @@ type User struct{
 
 type Users []User
 
-const UserSchema string = `CREATE TABLE users (
-        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(30) NOT NULL UNIQUE,
-        password VARCHAR(30) NOT NULL,
-        email VARCHAR(50),
-        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`
-
 func (this *User) Save() bool{
   if this.Id > 0{
     return this.update()
@@ -26,22 +19,18 @@ func (this *User) Save() bool{
   }
 }
 
-/*No Golang Way*/
 func (this *User) Delete(){
-  sql := "DELETE FROM users WHERE id=?"
-  modifyData(sql, this.Id)
+  db.Delete(&this)
 }
 
 func (this *User) update() bool {
-  sql := "UPDATE users SET username=?,password=?,email=? WHERE id=?"
-  rows, _ := modifyData(sql, this.Username, this.Password, this.Email, this.Id)
-  return rows > 0
+  db.Save(&this)
+  return true
 }
 
 func (this *User) insert() bool {
-  sql := "INSERT users SET username=?,password=?,email=?"
-  this.Id, _ = insertData(sql, this.Username, this.Password, this.Email)
-  return this.Id > 0
+  db.Create(&this)
+  return true
 }
 
 func (this *User) SetPassword(password string){
@@ -59,27 +48,16 @@ func CreateUser(username, password, email string) *User{
   user.Save()
   return user
 }
-
+  
 func GetUser(id int) User{
-  sql := "SELECT id, username, email FROM users WHERE id=?"
   user := User{}
-  row, _ := query(sql, id)
-  for row.Next() {
-    row.Scan(&user.Id, &user.Username, &user.Email)
-  }
+  db.Where("id = ?", id).First(&user)
   return user
 }
 
 func GetUsers() Users{
-  sql := "SELECT id, username, email FROM users"
-  row, _ := query(sql)
   users := Users{}
-
-  for row.Next() {
-    user := User{}
-    row.Scan(&user.Id, &user.Username, &user.Email)
-    users = append(users, user)
-  }
+  db.Find(&users)
   return users
 }
 

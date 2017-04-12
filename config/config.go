@@ -18,7 +18,7 @@ type DatabaseConfig struct {
 
 type ServerConfig struct {
   Host         string   `env:"HOST" envDefault:"localhost"`
-  Port         int      `env:"PORT" envDefault:"3000"`
+  Port         int      `env:"PORT" envDefault:"8000"`
   IsProduction bool     `env:"PRODUCTION" envDefault:"false"`
 }
 
