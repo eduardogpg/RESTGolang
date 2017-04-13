@@ -2,7 +2,8 @@ package config
 
 import (
   "fmt"
-  "github.com/caarlos0/env"
+  _ "github.com/caarlos0/env"
+  "../utils"
 )
 
 type configInterface interface {
@@ -10,16 +11,16 @@ type configInterface interface {
 }
 
 type DatabaseConfig struct {
-  Username    string    `env:"USERNAME" envDefault:"root"`
-  Password    string    `env:"PASSWORD" envDefault:""`
-  Database    string    `env:"DATABASE" envDefault:"REST_GOLANG"`
-  Port        int       `env:"PORT" envDefault:"3306"`
+  Username    string
+  Password    string
+  Database    string
+  Port        int
 }
 
 type ServerConfig struct {
-  Host         string   `env:"HOST" envDefault:"localhost"`
-  Port         int      `env:"PORT" envDefault:"8000"`
-  IsProduction bool     `env:"PRODUCTION" envDefault:"false"`
+  Host         string
+  Port         int
+  IsProduction bool
 }
 
 var database *DatabaseConfig
@@ -33,20 +34,21 @@ func (this *ServerConfig) getUrl() string{
   return fmt.Sprintf("%s:%d", this.Host, this.Port)
 }
 
-//http://stackoverflow.com/questions/9059129/gae-go-init-call-it-multiple-times
+
 func init() {
   server = &ServerConfig{}
   database = &DatabaseConfig{}
   
-  if err := env.Parse(server); err != nil {
-    panic(err)
-  }
+  server.Host = utils.GetStringEnv("HOST", "localhost")
+  server.Port = utils.GetIntEnv("PORT", 8000)
+  server.IsProduction = utils.GetBoolEnv("PRODUCTION", false)
 
-  if err := env.Parse(database); err != nil {
-    panic(err)
-  }
+  database.Username = utils.GetStringEnv("USERNAME", "root")
+  database.Password = utils.GetStringEnv("PASSWORD", "")
+  database.Database = utils.GetStringEnv("DATABASE", "REST_GOLANG")
+  database.Port = utils.GetIntEnv("PORT", 3306)
+
 }
-
 
 func UrlDatabase() string{
   return database.getUrl()
