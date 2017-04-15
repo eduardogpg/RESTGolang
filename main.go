@@ -6,9 +6,11 @@ import(
 	"github.com/gorilla/mux"
 	"./handlers"
 	"./config"
-
-	_ "fmt"
 )
+
+func init(){
+	
+}
 
 func main() {
 	// defer models.CloseConnection()

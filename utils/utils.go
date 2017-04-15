@@ -1,8 +1,6 @@
 package utils
 
-import(
-  "os"
-)
+import "os"
 
 func GetStringEnv(env string, defEnv string) string{
   val := GetEnv(env, defEnv)
