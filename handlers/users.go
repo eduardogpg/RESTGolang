@@ -33,8 +33,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 		models.SendUnprocessableEntity(w)
 	}else{
 		user.SetPassword(user.Password)
-		user.Save()
-		SendData(w, user)
+		if err := user.Save(); err != nil{
+			models.SendUnprocessableEntity(w)
+		}else{
+			SendData(w, user)	
+		}
 	}
 }
 
@@ -58,8 +61,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	user.Username = userRequest.Username
 	user.SetPassword(userRequest.Username)
 	user.Email = userRequest.Email
-	user.Save()
-	SendData(w, user)
+	
+	if err := user.Save(); err != nil{
+		models.SendUnprocessableEntity(w)
+	}else{
+		SendData(w, user)	
+	}
 }
 
 // curl -X DELETE http://localhost:8000/api/v1/users/1 
@@ -67,8 +74,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
 		SendNotFound(w)
 	}else{
-		user.Delete()
-		SendNoContent(w)
+		
+		if err := user.Delete(); err != nil{
+			models.SendNoContent(w)
+		}else{
+			SendNoContent(w)	
+		}
 	}
 }
 
@@ -76,7 +87,7 @@ func getUserByRequest(r *http.Request) (models.User, error){
 	vars := mux.Vars(r)
 	id, _ :=  strconv.Atoi( vars["id"] )
 	
-	if user := models.GetUser(id); user.Id <= 0{
+	if user := models.GetUser("id", id); user.Id <= 0{
 		return user, errors.New("User not found")
 	}else{
 		return user, nil

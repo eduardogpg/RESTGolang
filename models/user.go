@@ -76,13 +76,19 @@ func CreateUser(username, password, email string) (*User, error){
 /*
 func GetUser(id int) User{
   sql := "SELECT id, username, password, email FROM users WHERE id=?"
-  return generateUser(sql, id)
+  user := User{}
+  row, _ := query(sql, conditional);
+
+  for row.Next() {
+    row.Scan(&user.Id, &user.Username, &user.Password, &user.Email)
+  }
+  return user
 }
 */
 
-func GetUser(field string, conditional interface{}) User{
+func GetUser(field string, conditional interface{}) *User{
   sql := fmt.Sprintf("SELECT id, username, password, email FROM users WHERE %s=?", field)
-  user := User{}
+  user := &User{}
   row, _ := query(sql, conditional);
 
   for row.Next() {

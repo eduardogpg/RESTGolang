@@ -17,27 +17,26 @@ var debug bool
 
 func init(){
   debug = true
-  createConnection()
-  sendPing()
+  CreateConnection()
 
   if debug{
     createTables()
   }
-
 }
 
-func sendPing(){
-  if err := db.Ping(); err != nil{
-    panic(err)
-  }
-}
-
-func createConnection(){
+func CreateConnection(){
   url := config.UrlDatabase()
   if connection, err := sql.Open("mysql", url); err != nil{
     panic(err) //If we do not have access to the database, why continue with the program?
   }else{
     db = connection
+    sendPing()
+  }
+}
+
+func sendPing(){
+  if err := db.Ping(); err != nil{
+    panic(err)
   }
 }
 
@@ -57,13 +56,13 @@ func createTable(table, schema string){
   }
 }
 
-func truncateTable(table string){
-  execute("TRUNCATE " + table )
-}
-
 func existsTable(table string) bool{
   rows, _ := query( "SHOW TABLES LIKE '" + table + "'")
   return rows.Next()
+}
+
+func truncateTable(table string){
+  execute("TRUNCATE " + table )
 }
 
 func InsertData(query string, args ...interface{}) (int64, error){
