@@ -53,11 +53,9 @@ func (this *User) insert() error {
 }
 
 // https://astaxie.gitbooks.io/build-web-application-with-golang/en/09.5.html
-// http://stackoverflow.com/questions/7465204/maximum-mysql-user-password-length 
-// 32 caracteres como maximo
 func (this *User) SetPassword(password string){
   hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-  this.Password = string(hash) //60 caracteres
+  this.Password = string(hash)
 }
 
 
@@ -71,20 +69,6 @@ func CreateUser(username, password, email string) (*User, error){
   user := NewUser(username, password, email)
   return user, user.Save()
 }
-
-
-/*
-func GetUser(id int) User{
-  sql := "SELECT id, username, password, email FROM users WHERE id=?"
-  user := User{}
-  row, _ := query(sql, conditional);
-
-  for row.Next() {
-    row.Scan(&user.Id, &user.Username, &user.Password, &user.Email)
-  }
-  return user
-}
-*/
 
 func GetUser(field string, conditional interface{}) *User{
   sql := fmt.Sprintf("SELECT id, username, password, email FROM users WHERE %s=?", field)
@@ -115,7 +99,3 @@ func LoginUser(username, password string) bool {
   err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password));
   return err == nil
 }
-
-
-
-

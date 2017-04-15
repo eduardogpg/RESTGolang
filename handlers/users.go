@@ -33,8 +33,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 		models.SendUnprocessableEntity(w)
 	}else{
 		user.SetPassword(user.Password)
+		
 		if err := user.Save(); err != nil{
-			models.SendUnprocessableEntity(w)
+			models.SendBadRequest(w)
 		}else{
 			SendData(w, user)	
 		}
@@ -59,11 +60,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	}
 
 	user.Username = userRequest.Username
-	user.SetPassword(userRequest.Username)
+	user.SetPassword(userRequest.Password)
 	user.Email = userRequest.Email
 	
+	//user.Valid()?
 	if err := user.Save(); err != nil{
-		models.SendUnprocessableEntity(w)
+		models.SendBadRequest(w)
 	}else{
 		SendData(w, user)	
 	}
@@ -76,14 +78,14 @@ func DeleteUser(w http.ResponseWriter, r *http.Request){
 	}else{
 		
 		if err := user.Delete(); err != nil{
-			models.SendNoContent(w)
+			models.SendBadRequest(w)
 		}else{
 			SendNoContent(w)	
 		}
 	}
 }
 
-func getUserByRequest(r *http.Request) (models.User, error){
+func getUserByRequest(r *http.Request) (*models.User, error){
 	vars := mux.Vars(r)
 	id, _ :=  strconv.Atoi( vars["id"] )
 	
@@ -93,8 +95,3 @@ func getUserByRequest(r *http.Request) (models.User, error){
 		return user, nil
 	}
 }
-
-
-
-
-

@@ -51,6 +51,17 @@ func (this *Response) NoContent(){
   this.Message = "No Content."
 } 
 
+func SendBadRequest(w http.ResponseWriter){
+  response := CreateDefaultResponse(w)
+  response.BadRequest()
+  response.Send()
+}
+
+func (this *Response) BadRequest(){
+  this.Status = http.StatusBadRequest
+  this.Message = "Bad Request."
+}
+
 func SendData(w http.ResponseWriter, data interface{}){
   response := CreateDefaultResponse(w)
   response.Data = data
