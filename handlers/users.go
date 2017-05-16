@@ -6,7 +6,7 @@ import(
 	"net/http"
 	"encoding/json"
 	
-	"../models"
+	"../../models"
 	"github.com/gorilla/mux"
 )
 

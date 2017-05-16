@@ -3,11 +3,10 @@ package config
 import (
   "fmt"
   "github.com/caarlos0/env"
-  _ "../utils"
 )
 
 type configInterface interface {
-    getUrl() string
+    Url() string
 }
 
 type DatabaseConfig struct {
@@ -28,15 +27,6 @@ type ServerConfig struct {
 var database *DatabaseConfig
 var server *ServerConfig
 
-//"<username>:<pw>@tcp(<HOST>:<port>)/<dbname>"
-func (this *DatabaseConfig) getUrl() string{
-  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8",this.Username, this.Password, this.Host, this.Port, this.Database)
-}
-
-func (this *ServerConfig) getUrl() string{
-  return fmt.Sprintf("%s:%d", this.Host, this.Port)
-}
-
 func init() {
   server = &ServerConfig{}
   database = &DatabaseConfig{}
@@ -44,18 +34,31 @@ func init() {
   if err := env.Parse(server); err != nil {
     panic(err)
   }
-
+  
   if err := env.Parse(database); err != nil {
     panic(err)
   }
 }
 
+//"<username>:<pw>@tcp(<HOST>:<port>)/<dbname>"
+func (this *DatabaseConfig) Url() string{
+  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8",this.Username, this.Password, this.Host, this.Port, this.Database)
+}
+
+func (this *ServerConfig) Url() string{
+  return fmt.Sprintf("%s:%d", this.Host, this.Port)
+}
+
 func UrlDatabase() string{
-  return database.getUrl()
+  return database.Url()
 }
 
 func UrlServer() string{
-  return server.getUrl()
+  return server.Url()
+}
+
+func DebugDatabase() bool{
+  return database.Production
 }
 
 

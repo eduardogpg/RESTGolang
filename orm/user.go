@@ -3,9 +3,9 @@ package models
 const UserTable string = "users"
 
 type User struct{
-	Id			  int64		`json:"id"`
-	Username 	string	`json:"username"`
-	Password 	string	`json:"password"`
+  Id        int64   `json:"id"`
+  Username  string  `json:"username"`
+  Password  string  `json:"password"`
   Email     string  `json:"email"`
 }
 

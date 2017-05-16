@@ -35,13 +35,13 @@ func (this *User) Save() error {
 
 func (this *User) Delete() error {
   sql := "DELETE FROM users WHERE id=?"
-  _, err := modifyData(sql, this.Id)
+  _, err := ModifyData(sql, this.Id)
   return err
 }
 
 func (this *User) update() error {
   sql := "UPDATE users SET username=?,password=?,email=? WHERE id=?"
-  _, err := modifyData(sql, this.Username, this.Password, this.Email, this.Id)
+  _, err := ModifyData(sql, this.Username, this.Password, this.Email, this.Id)
   return err
 }
 
@@ -73,7 +73,7 @@ func CreateUser(username, password, email string) (*User, error){
 func GetUser(field string, conditional interface{}) *User{
   sql := fmt.Sprintf("SELECT id, username, password, email FROM users WHERE %s=?", field)
   user := &User{}
-  row, _ := query(sql, conditional);
+  row, _ := Query(sql, conditional);
 
   for row.Next() {
     row.Scan(&user.Id, &user.Username, &user.Password, &user.Email)
@@ -83,7 +83,7 @@ func GetUser(field string, conditional interface{}) *User{
 
 func GetUsers() Users{
   sql := "SELECT id, username, password, email FROM users"
-  row, _ := query(sql)
+  row, _ := Query(sql)
   users := Users{}
 
   for row.Next() {
