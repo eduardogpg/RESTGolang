@@ -24,12 +24,11 @@ const UserSchema string = `CREATE TABLE users (
         email VARCHAR(50),
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`
 
-
 func (this *User) Save() error {
   if this.Id > 0{
-    return this.update()
+    return this.Update()
   }else{
-    return this.insert()
+    return this.Insert()
   }
 }
 
@@ -39,13 +38,13 @@ func (this *User) Delete() error {
   return err
 }
 
-func (this *User) update() error {
+func (this *User) Update() error {
   sql := "UPDATE users SET username=?,password=?,email=? WHERE id=?"
   _, err := ModifyData(sql, this.Username, this.Password, this.Email, this.Id)
   return err
 }
 
-func (this *User) insert() error {
+func (this *User) Insert() error {
   sql := "INSERT users SET username=?,password=?,email=?"
   id, err := InsertData(sql, this.Username, this.Password, this.Email)
   this.Id = id
@@ -54,12 +53,13 @@ func (this *User) insert() error {
 
 // https://astaxie.gitbooks.io/build-web-application-with-golang/en/09.5.html
 func (this *User) SetPassword(password string){
-  hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-  this.Password = string(hash)
+  //hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+  //this.Password = string(hash)
+  this.Password = password
 }
 
 
-func NewUser(username, password, email string) *User{
+func NewUser(username, password, email string) *User {
   user :=&User{Username: username, Email: email }
   user.SetPassword(password)
   return user 
@@ -73,7 +73,11 @@ func CreateUser(username, password, email string) (*User, error){
 func GetUser(field string, conditional interface{}) *User{
   sql := fmt.Sprintf("SELECT id, username, password, email FROM users WHERE %s=?", field)
   user := &User{}
-  row, _ := Query(sql, conditional);
+  row, err := Query(sql, conditional);
+  
+  if err != nil{
+    return user
+  }
 
   for row.Next() {
     row.Scan(&user.Id, &user.Username, &user.Password, &user.Email)
@@ -83,8 +87,12 @@ func GetUser(field string, conditional interface{}) *User{
 
 func GetUsers() Users{
   sql := "SELECT id, username, password, email FROM users"
-  row, _ := Query(sql)
+  row, err := Query(sql)
   users := Users{}
+
+  if err != nil{
+    return users
+  }
 
   for row.Next() {
     user := User{}

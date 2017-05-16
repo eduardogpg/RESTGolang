@@ -12,20 +12,23 @@ var db *sql.DB
 
 func init(){
   CreateConnection()
-  CreateTables()
 }
 
 func CreateConnection(){
-  url := config.UrlDatabase()
-  if connection, err := sql.Open("mysql", url); err != nil{
+  if GetConnection() != nil{
+    return
+  }
+
+  if connection, err := sql.Open("mysql", config.UrlDatabase()); err != nil{
     panic(err) 
   }else{
     db = connection
   }
-}
+} 
 
 func Ping(){
   if err := db.Ping(); err != nil{
+    log.Println(err)
     panic(err)
   }
 }
@@ -81,7 +84,7 @@ func ModifyData(query string, args ...interface{}) (int64, error){
 func Execute(query string, args ...interface{}) (sql.Result, error){
   result, err := db.Exec(query, args...)
   if err != nil { 
-    log.Println(err)
+    // log.Println(err)
   }
   return result, err
 }
@@ -90,7 +93,7 @@ func Execute(query string, args ...interface{}) (sql.Result, error){
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
   rows, err := db.Query(query, args...)
   if err != nil { 
-    log.Println(err)
+    // log.Println(err)
   }
   return rows, err
 }
