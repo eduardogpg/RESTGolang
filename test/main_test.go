@@ -17,31 +17,23 @@ func TestMain(m *testing.M) {
 
 func beforeTest(){
   fmt.Println(">> Before the suite")
-  createConnection()
+  models.CreateConnection()
+  models.CreateTables()
   createDefaultUser()
 }
 
 func afterTest(){
   fmt.Println(">> After the suite")
-  closeConnection()
-}
-
-func createConnection(){
-  models.CreateConnection()
-  models.CreateTables()
-}
-
-func closeConnection(){
   models.CloseConnection()
 }
 
+
 func createDefaultUser(){
-  sql := fmt.Sprintf("INSERT users SET id='%d', username='%s', password='%s', email='%s' ",id, username, password, email)
+  sql := fmt.Sprintf("INSERT users SET id='%d', username='%s', password='%s', email='%s', created_date='%s' ",id, username, encryptedPassword, email, createdDate)
   _, err := models.Execute(sql)
   if err != nil{
     panic(err)
   }
-  
   user = &models.User{Id: int64(id), Username:username, Password:password, Email:email}
 }
 

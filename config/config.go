@@ -42,7 +42,7 @@ func init() {
 
 //"<username>:<pw>@tcp(<HOST>:<port>)/<dbname>"
 func (this *DatabaseConfig) Url() string{
-  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8",this.Username, this.Password, this.Host, this.Port, this.Database)
+  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",this.Username, this.Password, this.Host, this.Port, this.Database)
 }
 
 func (this *ServerConfig) Url() string{
