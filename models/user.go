@@ -87,17 +87,28 @@ func CreateUser(username, password, email string) (*User, error){
 }
 
 func GetUser(field string, conditional interface{}) *User{
+  //muy importante mencionar que no debemos de eliminar =?
+  /*
+  Yes, this is expected.
+  Multiple statements are unsupported because database/sql has no way to return multiple results and it's impossible to merge them into one.
+  */
   sql := fmt.Sprintf("SELECT id, username, password, email, created_date FROM users WHERE %s=?", field)
+  
+  // sql := fmt.Sprintf("SELECT id, username, password, email, created_date FROM users WHERE %s='%s'", field, conditional)
+  //fmt.Println(sql)
   user := &User{}
   row, err := Query(sql, conditional);
-  
+  // row, err := Query(sql);
   if err != nil{
+    fmt.Println(err)
+    fmt.Println(row)
     return user
   }
 
   for row.Next() {
     row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.CreatedDate)
   }
+
   return user
 }
 

@@ -18,23 +18,10 @@ type DatabaseConfig struct {
   Production  bool      `env:"PRODUCTION" envDefault:"false"`
 }
 
-type ServerConfig struct {
-  Host         string   `env:"HOST" envDefault:"localhost"`
-  Port         int      `env:"PORT" envDefault:"8000"`
-  Production   bool     `env:"PRODUCTION" envDefault:"false"`
-}
-
 var database *DatabaseConfig
-var server *ServerConfig
 
 func init() {
-  server = &ServerConfig{}
   database = &DatabaseConfig{}
-    
-  if err := env.Parse(server); err != nil {
-    panic(err)
-  }
-  
   if err := env.Parse(database); err != nil {
     panic(err)
   }
@@ -45,20 +32,12 @@ func (this *DatabaseConfig) Url() string{
   return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",this.Username, this.Password, this.Host, this.Port, this.Database)
 }
 
-func (this *ServerConfig) Url() string{
-  return fmt.Sprintf("%s:%d", this.Host, this.Port)
-}
-
 func UrlDatabase() string{
   return database.Url()
 }
 
-func UrlServer() string{
-  return server.Url()
-}
-
 func DebugDatabase() bool{
-  return database.Production
+  return !database.Production
 }
 
 

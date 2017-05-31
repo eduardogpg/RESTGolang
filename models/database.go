@@ -9,9 +9,13 @@ import (
 )
 
 var db *sql.DB
+var debug bool
 
 func init(){
   CreateConnection()
+  debug = config.DebugDatabase()
+  log.Println("Modo debug")
+  log.Println(debug)
 }
 
 func CreateConnection(){
@@ -83,8 +87,8 @@ func ModifyData(query string, args ...interface{}) (int64, error){
 //Exec executes a query without returning any rows. 
 func Execute(query string, args ...interface{}) (sql.Result, error){
   result, err := db.Exec(query, args...)
-  if err != nil { 
-    // log.Println(err)
+  if err != nil && !debug { 
+    log.Println(err)
   }
   return result, err
 }
@@ -92,8 +96,8 @@ func Execute(query string, args ...interface{}) (sql.Result, error){
 // Query executes a query that returns rows
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
   rows, err := db.Query(query, args...)
-  if err != nil { 
-    // log.Println(err)
+  if err != nil && !debug{ 
+    log.Println(err)
   }
   return rows, err
 }

@@ -21,8 +21,8 @@ const(
 )
 
 func TestNewUser(t *testing.T){
-  user := models.NewUser(username,password, email) //El pass ya encriptado no coincide
-  if !objectEquals(user) { //t.Log("El password encriptad es ", user.Password)
+  user := models.NewUser(username,password, email)
+  if !objectEquals(user) {
     t.Error("No es posible crear el objeto")
   }
 }
@@ -91,7 +91,7 @@ func TestInValidEmail(t *testing.T){
 
 func TestGet(t *testing.T){
   user := models.GetUser("id", id)
-  if !objectEquals(user) || !createDateEquals(user.CreatedDate) { //t.Log(user.CreatedDate)
+  if !objectEquals(user) || !createDateEquals(user.CreatedDate) {
     t.Error("No es posible obtener el usuario")
   }
 }
@@ -102,13 +102,12 @@ func TestGetUsers(t *testing.T){
     t.Error("No es posible obtener los usuarios")
   }
 }
-/*
+
 func TestDeleteUser(t *testing.T){
   if err := user.Delete(); err != nil{
     t.Error("No es posible eliminar el usuario")
   }
 }
-*/
 
 /*Funciones internas*/
 func random_username() string{
@@ -121,7 +120,6 @@ func createDateEquals(date time.Time) bool{
 }
 
 func objectEquals(user *models.User) bool{
-  // return user.Username == username && user.Password == password && user.Email == email
   return user.Username == username && user.Email == email
 }
 
