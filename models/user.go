@@ -1,7 +1,6 @@
 package models
 
 import(
-  "fmt"
   "time"
   "regexp"
   "errors"
@@ -56,16 +55,34 @@ func (this *User) Insert() error {
   return err
 }
 
-// https://astaxie.gitbooks.io/build-web-application-with-golang/en/09.5.html
-func (this *User) SetPassword(password string){
-  hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func (this *User) SetPassword(password string) error{
+  hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+  if err != nil{
+    return err
+  }
   this.Password = string(hash)
+  return nil
 }
 
-func NewUser(username, password, email string) *User {
-  user :=&User{Username: username, Email: email }
-  user.SetPassword(password)
-  return user 
+func NewUser(username, password, email string) (*User, error) {
+  if err := ValidEmail(email); err != nil{
+    return &User{}, err
+  }
+
+  if err := ValidUsername(username); err != nil{
+    return &User{}, err 
+  }
+
+  user := &User{Username: username, Email: email }
+  err := user.SetPassword(password)
+  return user, err 
+}
+
+func ValidUsername(username string) error {
+  if len(username) > 60{
+    return errors.New("Username demasiado largo")
+  }
+  return nil
 }
 
 func ValidEmail(email string) error{
@@ -73,42 +90,42 @@ func ValidEmail(email string) error{
     return errors.New("Formato invalido de Email")
   }
   return nil
-} 
+}
 
 func Login(username, password string) bool{
-  user := GetUser("username", username)
+  user := GetUserByUsername(username)
   err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
   return err == nil
 }
 
 func CreateUser(username, password, email string) (*User, error){
-  user := NewUser(username, password, email)
+  user, err := NewUser(username, password, email)
+  if err != nil{
+    return user, err
+  }
   return user, user.Save()
 }
 
-func GetUser(field string, conditional interface{}) *User{
-  //muy importante mencionar que no debemos de eliminar =?
-  /*
-  Yes, this is expected.
-  Multiple statements are unsupported because database/sql has no way to return multiple results and it's impossible to merge them into one.
-  */
-  sql := fmt.Sprintf("SELECT id, username, password, email, created_date FROM users WHERE %s=?", field)
-  
-  // sql := fmt.Sprintf("SELECT id, username, password, email, created_date FROM users WHERE %s='%s'", field, conditional)
-  //fmt.Println(sql)
+func GetUserByUsername(username string) *User{
+  sql := "SELECT id, username, password, email, created_date FROM users WHERE username=?"
+  return GetUser(sql, username)
+}
+
+func GetUserById(id int) *User{
+  sql := "SELECT id, username, password, email, created_date FROM users WHERE id=?"
+  return GetUser(sql, id)
+}
+
+func GetUser(sql string, conditional interface{}) *User{
   user := &User{}
   row, err := Query(sql, conditional);
-  // row, err := Query(sql);
   if err != nil{
-    fmt.Println(err)
-    fmt.Println(row)
     return user
   }
 
   for row.Next() {
     row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.CreatedDate)
   }
-
   return user
 }
 

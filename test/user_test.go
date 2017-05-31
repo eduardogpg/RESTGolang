@@ -21,14 +21,26 @@ const(
 )
 
 func TestNewUser(t *testing.T){
-  user := models.NewUser(username,password, email)
-  if !objectEquals(user) {
+  _, err := models.NewUser(username,password, email)
+  if err != nil {
     t.Error("No es posible crear el objeto")
   }
 }
 
+func TestUsernameLength(t *testing.T){
+  newUser := username
+  for i := 0; i < 10; i++ {
+    newUser += newUser
+  }
+  
+  _, err := models.NewUser(newUser,password, email)
+  if err.Error() != "Username demasiado largo" {
+    t.Error("Es posible insertar un usuario con un username no valido")
+  }
+}
+
 func TestSave(t *testing.T){
-  user := models.NewUser(random_username(), password, email)
+  user, _ := models.NewUser(random_username(), password, email)
   if err := user.Save(); err != nil{
     t.Error("No es posible crear el usuario", err)
   }
@@ -57,14 +69,14 @@ func TestDuplicateUsername(t *testing.T){
 }
 
 func TestPassword(t *testing.T){
-  user := models.NewUser(username, password, email)
+  user, _:= models.NewUser(username, password, email)
   if user.Password == password{
     t.Error("No fue posible cifrar el password")
   }
 }
 
 func TestPasswordLength(t *testing.T){
-  user := models.NewUser(username, password, email)
+  user, _ := models.NewUser(username, password, email)
   if len(user.Password) != 60{
     t.Error("No fue posible cifrar el password") 
   }
@@ -89,8 +101,12 @@ func TestInValidEmail(t *testing.T){
   }
 }
 
+func TestValidEmailLenght(t *testing.T){
+
+}
+
 func TestGet(t *testing.T){
-  user := models.GetUser("id", id)
+  user := models.GetUserById(id)
   if !objectEquals(user) || !createDateEquals(user.CreatedDate) {
     t.Error("No es posible obtener el usuario")
   }
