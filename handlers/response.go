@@ -64,4 +64,3 @@ func (this *Response) Send(){
   output, _ := json.Marshal(&this)
   fmt.Fprintf(this.writer, string(output) )
 }
-

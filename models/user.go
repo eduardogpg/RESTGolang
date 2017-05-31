@@ -38,7 +38,7 @@ func (this *User) Save() error {
 
 func (this *User) Delete() error {
   sql := "DELETE FROM users WHERE id=?"
-  _, err := ModifyData(sql, 2)
+  _, err := ModifyData(sql, this.Id)
   return err
 }
 
@@ -58,7 +58,7 @@ func (this *User) Insert() error {
 func (this *User) SetPassword(password string) error{
   hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
   if err != nil{
-    return err
+    return errors.New("Error cifrado de password")
   }
   this.Password = string(hash)
   return nil
@@ -137,7 +137,7 @@ func GetUsers() Users{
   if err != nil{
     return users
   }
-
+  
   for row.Next() {
     user := User{}
     row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.CreatedDate)

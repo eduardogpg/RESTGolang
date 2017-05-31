@@ -1,18 +1,18 @@
 package handlers
 
 import(
-	"errors"
+	"log"
 	"strconv"
+	"errors"
 	"net/http"
+	"../models"
 	"encoding/json"
-	
-	"../../models"
 	"github.com/gorilla/mux"
 )
 
 // curl -X GET http://localhost:8000/api/v1/users/
 func GetUsers(w http.ResponseWriter, r *http.Request){
-	models.SendData(w, models.GetUsers() )
+	SendData(w, models.GetUsers() )
 }
 
 // curl -X GET http://localhost:8000/api/v1/users/1
@@ -24,74 +24,66 @@ func GetUser(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-// curl -X POST http://localhost:8000/api/v1/users/ -d '{"username" : "eduardo", "password": "password", "email": "eduardo@codigofacilito.com"}' -H "Content-type: application/json"
+//curl -i -H "Content-Type: application/json" -X POST -d '{"username":"New User dos", "password": "password123", "email": "email@email.com"}' http://localhost:8000/api/v1/users/
 func CreateUser(w http.ResponseWriter, r *http.Request){
-	user := models.User{}
+	user := &models.User{}
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&user); err != nil{
-		models.SendUnprocessableEntity(w)
-	}else{
-		user.SetPassword(user.Password)
-		
-		if err := user.Save(); err != nil{
-			models.SendBadRequest(w)
-		}else{
-			SendData(w, user)	
-		}
+		SendUnprocessableEntity(w)
 	}
+	
+	user.SetPassword(user.Password)
+	if err := user.Save(); err != nil{
+		SendUnprocessableEntity(w)	
+	}
+	SendData(w, user)
 }
 
-// curl -X PUT http://localhost:8000/api/v1/users/1 -d '{"username" : "new_eduardo", "new_password": "password", "email": "new_eduardo@codigofacilito.com"}' -H "Content-type: application/json"
+//curl -i -H "Content-Type: application/json" -X PUT -d '{"username":"Lalo", "password": "change123", "email":"eduardo@codigofacilito.com"}' http://localhost:8000/api/v1/users/1
 func UpdateUser(w http.ResponseWriter, r *http.Request){
 	user, err := getUserByRequest(r)
-	
 	if err != nil{
 		SendNotFound(w)
 		return
 	}
-
-	userRequest := models.User{}
+	
+	request := &models.User{}
 	decoder := json.NewDecoder(r.Body)
-
-	if err := decoder.Decode(&userRequest); err != nil{
+	if err := decoder.Decode(request); err != nil{
+		log.Println("Primer if")
 		SendUnprocessableEntity(w)
 		return
 	}
 
-	user.Username = userRequest.Username
-	user.SetPassword(userRequest.Password)
-	user.Email = userRequest.Email
+	user.Username = request.Username
+	user.SetPassword(request.Password)
+	user.Email = request.Email
 	
-	//user.Valid()?
-	if err := user.Save(); err != nil{
-		models.SendBadRequest(w)
-	}else{
-		SendData(w, user)	
+	if err:= user.Save(); err != nil{
+		log.Println("Segundo if")
+		SendUnprocessableEntity(w)
 	}
+	SendData(w, user)
 }
 
-// curl -X DELETE http://localhost:8000/api/v1/users/1 
+//curl -X DELETE http://localhost:8000/api/v1/users/1 -i
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
 		SendNotFound(w)
 	}else{
-		
-		if err := user.Delete(); err != nil{
-			models.SendBadRequest(w)
-		}else{
-			SendNoContent(w)	
-		}
+		user.Delete()
+		SendNoContent(w)
 	}
 }
 
 func getUserByRequest(r *http.Request) (*models.User, error){
 	vars := mux.Vars(r)
 	id, _ :=  strconv.Atoi( vars["id"] )
-	
-	if user := models.GetUser("id", id); user.Id <= 0{
-		return user, errors.New("User not found")
-	}else{
-		return user, nil
+	user := models.GetUserById(id)
+	if user.Id == 0{
+		return user, errors.New("Usuario inexistente en la base de datos")
 	}
+
+	return user, nil
 }

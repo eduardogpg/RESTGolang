@@ -14,8 +14,6 @@ var debug bool
 func init(){
   CreateConnection()
   debug = config.DebugDatabase()
-  log.Println("Modo debug")
-  log.Println(debug)
 }
 
 func CreateConnection(){

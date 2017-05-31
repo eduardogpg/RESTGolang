@@ -1,6 +1,7 @@
 package config
 
 import (
+  "log"
   "fmt"
   "github.com/caarlos0/env"
 )
@@ -24,6 +25,10 @@ func init() {
   database = &DatabaseConfig{}
   if err := env.Parse(database); err != nil {
     panic(err)
+  }
+  
+  if DebugDatabase(){
+    log.Println("Debug mode")
   }
 }
 
