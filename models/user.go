@@ -65,17 +65,26 @@ func (this *User) SetPassword(password string) error{
 }
 
 func NewUser(username, password, email string) (*User, error) {
-  if err := ValidEmail(email); err != nil{
+  user := &User{Username: username, Email: email }
+  
+  if err := user.Valid(); err != nil{
     return &User{}, err
   }
-
-  if err := ValidUsername(username); err != nil{
-    return &User{}, err 
-  }
-
-  user := &User{Username: username, Email: email }
+  
   err := user.SetPassword(password)
   return user, err 
+}
+
+func (this *User) Valid() error{
+  if err := ValidEmail(this.Email); err != nil{
+    return err
+  }
+
+  if err := ValidUsername(this.Username); err != nil{
+    return err 
+  }
+
+  return nil
 }
 
 func ValidUsername(username string) error {
@@ -144,10 +153,4 @@ func GetUsers() Users{
     users = append(users, user)
   }
   return users
-}
-
-func LoginUser(username, password string) bool {
-  user := GetUser("username", username)
-  err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password));
-  return err == nil
 }

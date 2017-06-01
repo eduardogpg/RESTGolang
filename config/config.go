@@ -1,48 +1,48 @@
 package config
 
 import (
-  "log"
+  "github.com/eduardogpg/gonv"
   "fmt"
-  "github.com/caarlos0/env"
 )
 
-type configInterface interface {
-    Url() string
+type ServerConfig struct{
+  port  int
+  debug bool
 }
 
-type DatabaseConfig struct {
-  Username    string    `env:"USERNAME" envDefault:"root"`
-  Password    string    `env:"PASSWORD" envDefault:""`
-  Database    string    `env:"DATABASE" envDefault:"REST_GOLANG"`
-  Port        int       `env:"PORT" envDefault:"3306"`
-  Host        string    `env:"HOST" envDefault:"localhost"`
-  Production  bool      `env:"PRODUCTION" envDefault:"false"`
+type DatabaseConfig struct{
+  username string
+  password string
+  host string
+  port int
+  database string
+  debug bool
 }
 
+var server *ServerConfig
 var database *DatabaseConfig
 
-func init() {
+func init(){
   database = &DatabaseConfig{}
-  if err := env.Parse(database); err != nil {
-    panic(err)
-  }
+  database.username = gonv.GetStringEnv("USERNAME", "root")
+  database.password = gonv.GetStringEnv("PASSWORD", "")
+  database.host = gonv.GetStringEnv("HOST", "localhost")
+  database.port = gonv.GetIntEnv("PORT", 3306)
+  database.database = gonv.GetStringEnv("DATABASE", "project_go_web")
   
-  if DebugDatabase(){
-    log.Println("Debug mode")
-  }
+  server = &ServerConfig{}
+  server.port = gonv.GetIntEnv("PORT", 3000)
+  server.debug = gonv.GetBoolEnv("DEBUG", true)
 }
 
-//"<username>:<pw>@tcp(<HOST>:<port>)/<dbname>"
-func (this *DatabaseConfig) Url() string{
-  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",this.Username, this.Password, this.Host, this.Port, this.Database)
+func GetDebug() bool{
+  return server.debug
 }
 
-func UrlDatabase() string{
-  return database.Url()
+func GetUrlDatabase() string {
+  return database.url()
 }
 
-func DebugDatabase() bool{
-  return !database.Production
+func (this *DatabaseConfig) url() string{
+  return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true", this.username, this.password, this.host, this.port, this.database)
 }
-
-
