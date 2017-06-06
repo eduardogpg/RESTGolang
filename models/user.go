@@ -118,6 +118,7 @@ func ValidPassword(password string) error{
   if len(password) < 5{
     return errorShortUsername
   }
+  return nil
 }
 
 func Login(username, password string) error{
