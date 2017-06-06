@@ -1,8 +1,9 @@
 package config
 
 import (
-  "github.com/eduardogpg/gonv"
+  "os"
   "fmt"
+  "github.com/eduardogpg/gonv"
 )
 
 type ServerConfig struct{
@@ -21,6 +22,7 @@ type DatabaseConfig struct{
 
 var server *ServerConfig
 var database *DatabaseConfig
+var dir string
 
 func init(){
   database = &DatabaseConfig{}
@@ -33,6 +35,8 @@ func init(){
   server = &ServerConfig{}
   server.port = gonv.GetIntEnv("PORT", 3000)
   server.debug = gonv.GetBoolEnv("DEBUG", true)
+
+  dir, _ = os.Getwd()
 }
 
 func GetDebug() bool{
@@ -46,3 +50,14 @@ func GetUrlDatabase() string {
 func (this *DatabaseConfig) url() string{
   return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true", this.username, this.password, this.host, this.port, this.database)
 }
+
+func GetTemplatesDir() string{
+  return fmt.Sprintf("%s/templates/**/*.html", dir)
+}
+
+func GetErrorTemplateDir() string{
+  return fmt.Sprintf("%s/templates/error.html", dir)
+}
+
+
+

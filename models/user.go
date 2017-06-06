@@ -65,14 +65,14 @@ func (this *User) SetPassword(password string) error{
 }
 
 func NewUser(username, password, email string) (*User, error) {
-  user := &User{Username: username, Email: email }
+  user := &User{Username: username, Email: email, Password: password }
   
   if err := user.Valid(); err != nil{
-    return &User{}, err
+    return user, err
   }
   
   err := user.SetPassword(password)
-  return user, err 
+  return user, err
 }
 
 func (this *User) Valid() error{
@@ -84,27 +84,49 @@ func (this *User) Valid() error{
     return err 
   }
 
+  if err := ValidPassword(this.Password); err != nil{
+    return err
+  }
   return nil
 }
 
 func ValidUsername(username string) error {
-  if len(username) > 60{
-    return errors.New("Username demasiado largo")
+  if username == ""{
+    return errorUsername
   }
+
+  if len(username) < 5{
+    return errorShortUsername
+  }
+
+  if len(username) > 60{
+    return errorLargeUsername
+  }
+
+
   return nil
 }
 
 func ValidEmail(email string) error{
   if !emailRegexp.MatchString(email) {
-    return errors.New("Formato invalido de Email")
+    return errorEmail
   }
   return nil
 }
 
-func Login(username, password string) bool{
+func ValidPassword(password string) error{
+  if len(password) < 5{
+    return errorShortUsername
+  }
+}
+
+func Login(username, password string) error{
   user := GetUserByUsername(username)
   err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-  return err == nil
+  if err != nil{
+    return errors.New("Usuario o contraseña invalidos")
+  }
+  return nil
 }
 
 func CreateUser(username, password, email string) (*User, error){
@@ -112,7 +134,7 @@ func CreateUser(username, password, email string) (*User, error){
   if err != nil{
     return user, err
   }
-  return user, user.Save()
+  return user, user.Save() //Sería mejor que ustedes validarón los errors SQL para que el usuario no los vea tan feos pues!
 }
 
 func GetUserByUsername(username string) *User{
