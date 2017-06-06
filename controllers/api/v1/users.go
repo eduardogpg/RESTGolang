@@ -1,21 +1,21 @@
-package controllers
+package v1
 
 import(
 	"strconv"
 	"errors"
 	"net/http"
-	"../utils"
-	"../models"
+	"../../../utils"
+	"../../../models"
 	"encoding/json"
 	"github.com/gorilla/mux"
 )
 
-// curl -X GET http://localhost:8000/api/v1/users/
+// curl -X GET http://localhost:3000/api/v1/users/ -i
 func GetUsers(w http.ResponseWriter, r *http.Request){
 	utils.SendData(w, models.GetUsers() )
 }
 
-// curl -X GET http://localhost:8000/api/v1/users/1
+// curl -X GET http://localhost:3000/api/v1/users/1 -i
 func GetUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
 		utils.SendNotFound(w)
@@ -24,7 +24,7 @@ func GetUser(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-//curl -i -H "Content-Type: application/json" -X POST -d '{"username":"New User dos", "password": "password123", "email": "email@email.com"}' http://localhost:8000/api/v1/users/
+//curl -i -H "Content-Type: application/json" -X POST -d '{"username":"eduardo_gpg", "password": "password123", "email": "eduardo78d@gmail.com.com"}' http://localhost:3000/api/v1/users/ -i
 func CreateUser(w http.ResponseWriter, r *http.Request){
 	user := &models.User{}
 	decoder := json.NewDecoder(r.Body)
@@ -47,7 +47,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 	utils.SendData(w, user)
 }
 
-//curl -i -H "Content-Type: application/json" -X PUT -d '{"username":"Lalo", "password": "change123", "email":"eduardo@codigofacilito.com"}' http://localhost:8000/api/v1/users/1
+//curl -i -H "Content-Type: application/json" -X PUT -d '{"username":"eduardo_gpg", "password": "change123", "email":"eduardo@codigofacilito.com"}' http://localhost:3000/api/v1/users/1 -i
 func UpdateUser(w http.ResponseWriter, r *http.Request){
 	user, err := getUserByRequest(r)
 	if err != nil{
@@ -78,7 +78,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request){
 	utils.SendData(w, user)
 }
 
-//curl -X DELETE http://localhost:8000/api/v1/users/1 -i
+//curl -X DELETE http://localhost:3000/api/v1/users/1 -i
 func DeleteUser(w http.ResponseWriter, r *http.Request){
 	if user, err := getUserByRequest(r); err != nil{
 		utils.SendNotFound(w)
@@ -97,3 +97,4 @@ func getUserByRequest(r *http.Request) (*models.User, error){
 	}
 	return user, nil
 }
+

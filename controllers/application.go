@@ -18,9 +18,13 @@ func Register(w http.ResponseWriter, r *http.Request){
   context := make(map[string]interface{})
   context["User"] = models.User{}
 
+  if r.Method == "GET"{
+    context["CRFSToken"] = utils.SessionToken()
+  }
+  
   if r.Method == "POST"{ //https://golang.org/pkg/net/http/#Request.ParseForm
     username := r.FormValue("username") //r.Form["username"][0]
-    password := r.FormValue("password")
+    password := r.FormValue("password") //https://golang.org/pkg/net/http/#Request.FormValue
     email := r.FormValue("email")
 
     if user, err := models.CreateUser(username, password, email); err != nil{
@@ -42,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request){
     if err != nil{
       context["Error"] = err.Error()
     }else{
-      setSession(w, r)
+      utils.SetSession(w, r)
       http.Redirect(w, r, "/", http.StatusSeeOther)
       return
     }
@@ -51,6 +55,6 @@ func Login(w http.ResponseWriter, r *http.Request){
 }
 
 func Logout(w http.ResponseWriter, r *http.Request){
-  deleteSession(w)
+  utils.DeleteSession(w)
   http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

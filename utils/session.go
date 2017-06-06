@@ -1,54 +1,47 @@
 package utils
 
 import(
-  "fmt"
+  "time"
   "net/http"
+  "github.com/satori/go.uuid"
 )
-//http://localhost:3000/login
 
-const sessionName = "sisisisisis"
-//https://mschoebel.info/2014/03/09/snippet-golang-webapp-login-logout/
+const(
+  cookieName = "goWebTutorial"
+  cookieExprires = 24 * 2 * time.Hour
+)
 
 //https://golang.org/src/net/http/cookie.go
-//https://astaxie.gitbooks.io/build-web-application-with-golang/en/06.2.html
-func SetSession(w http.ResponseWriter, r *http.Request, userName string){
-  _, err := r.Cookie(sessionName) //Nos regresa un cookie como &
+func SetSession(w http.ResponseWriter, r *http.Request){
+  _, err := r.Cookie(cookieName) //https://golang.org/pkg/net/http/#Request.Cookie
   if err != nil{
-    http.SetCookie(w, &http.Cookie{
-      Name: sessionName,
-      Value: userName,
-      Path: r.URL.Path,
-    })
-
-    x, y := r.Cookie(sessionName); 
-    fmt.Println(x)
-    fmt.Println(x.Path)
-    fmt.Println(y)    
-
-  }
-}
-
-func UpdateSession(w http.ResponseWriter, r *http.Request){
-  if cookie, err := r.Cookie(sessionName); err == nil {
-    cookie.Path = r.URL.Path
+    cookie := &http.Cookie{
+      Name: cookieName,
+      Value: uuid.NewV4().String(), 
+      Expires: time.Now().Add(cookieExprires),
+    }
     http.SetCookie(w, cookie)
   }
+  //5b a2c
 }
 
-func DeleteSession(w http.ResponseWriter){
+func GetValCookie(r *http.Request) string {
+  if cookie, err := r.Cookie(cookieName); err == nil {
+    val := cookie.Value
+    return val
+  }
+  return ""
+}
+
+func DeleteSession(response http.ResponseWriter) {
   cookie := &http.Cookie{
-    Name:   sessionName,
-    Value:  "",
-    Path: "/logout",
+    Name: cookieName,
+    Value: "",
     MaxAge: -1,
   }
-  http.SetCookie(w, cookie)
+  http.SetCookie(response, cookie)
 }
 
-func HasSession(r *http.Request) bool{
-  cookie, err := r.Cookie(sessionName); 
-  fmt.Println(cookie)
-  fmt.Println(err)
-  return err == nil && cookie != nil && cookie.Value != ""
+func IsAuthenticated(r *http.Request) bool{
+  return GetValCookie(r) != ""
 }
-
