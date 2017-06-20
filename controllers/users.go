@@ -20,7 +20,7 @@ func NewUser(w http.ResponseWriter, r *http.Request){
       context["User"] = user
       context["Error"] = err.Error()
     }else{
-      utils.SetSession(w, r)
+      utils.SetSession(user, w, r)
       http.Redirect(w, r, "/", http.StatusSeeOther)
       return
     }
@@ -30,6 +30,8 @@ func NewUser(w http.ResponseWriter, r *http.Request){
 
 func EditUser(w http.ResponseWriter, r *http.Request){
   context := make(map[string]interface{})
+  user := utils.GetUser(r)
+  context["User"] = user
   utils.RenderTemplate(w, "users/edit", context)
 }
 
@@ -37,12 +39,12 @@ func Login(w http.ResponseWriter, r *http.Request){
   context := make(map[string]interface{})
 
   if r.Method == "POST"{
-    err := models.Login(r.FormValue("username"), r.FormValue("password"))
+    user, err := models.Login(r.FormValue("username"), r.FormValue("password"))
     if err != nil{
       context["Error"] = err.Error()
     }else{
       createCookie(w)
-      utils.SetSession(w, r)
+      utils.SetSession(user, w, r)
       http.Redirect(w, r, "/", http.StatusSeeOther)
       return
     }

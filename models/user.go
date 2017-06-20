@@ -117,13 +117,13 @@ func ValidPassword(password string) error{
   return nil
 }
 
-func Login(username, password string) error{
+func Login(username, password string) (*User, error){
   user := GetUserByUsername(username)
   err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
   if err != nil{
-    return errorLogin
+    return nil, errorLogin
   }
-  return nil
+  return user, nil
 }
 
 func CreateUser(username, password, email string) (*User, error){
