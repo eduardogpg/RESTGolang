@@ -7,8 +7,8 @@ import(
   "html/template"
 )
 
-var templates = template.Must(template.New("t").ParseGlob(config.GetTemplatesDir()))
-var errorTemplate = template.Must(template.ParseFiles(config.GetErrorTemplateDir()))
+var templates = template.Must(template.New("t").ParseGlob(config.TemplatesDir()))
+var errorTemplate = template.Must(template.ParseFiles(config.ErrorTemplateDir()))
   
 func RenderErrorTemplate(w http.ResponseWriter, status int){
   w.WriteHeader(status)

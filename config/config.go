@@ -6,9 +6,15 @@ import (
   "github.com/eduardogpg/gonv"
 )
 
+type Config interface {
+  url() string
+}
+
 type ServerConfig struct{
-  port  int
-  debug bool
+  host        string
+  port        int
+  debug       bool
+  templateDir string
 }
 
 type DatabaseConfig struct{
@@ -17,12 +23,10 @@ type DatabaseConfig struct{
   host string
   port int
   database string
-  debug bool
 }
 
 var server *ServerConfig
 var database *DatabaseConfig
-var dir string
 
 func init(){
   database = &DatabaseConfig{}
@@ -33,31 +37,44 @@ func init(){
   database.database = gonv.GetStringEnv("DATABASE", "project_go_web")
   
   server = &ServerConfig{}
+  server.host = gonv.GetStringEnv("HOST", "localhost")
   server.port = gonv.GetIntEnv("PORT", 3000)
   server.debug = gonv.GetBoolEnv("DEBUG", true)
-
-  dir, _ = os.Getwd()
+  server.templateDir, _ = os.Getwd() //Obtenemos la dirección actual del servidor
 }
 
-func GetDebug() bool{
+func Debug() bool{
   return server.debug
 }
 
-func GetUrlDatabase() string {
+func ServerHost() string {
+  return server.host;
+}
+
+func ServerPort() int {
+  return server.port;
+}
+
+func UrlDatabase() string {
   return database.url()
+}
+
+func UrlServer() string {
+  return server.url()
+}
+
+func TemplatesDir() string{
+  return fmt.Sprintf("%s/templates/**/*.html", server.templateDir)
+}
+
+func ErrorTemplateDir() string{
+  return fmt.Sprintf("%s/templates/error.html", server.templateDir)
+}
+
+func (this *ServerConfig) url() string {
+  return fmt.Sprintf("%s:%d", this.host, this.port)
 }
 
 func (this *DatabaseConfig) url() string{
   return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true", this.username, this.password, this.host, this.port, this.database)
 }
-
-func GetTemplatesDir() string{
-  return fmt.Sprintf("%s/templates/**/*.html", dir)
-}
-
-func GetErrorTemplateDir() string{
-  return fmt.Sprintf("%s/templates/error.html", dir)
-}
-
-
-

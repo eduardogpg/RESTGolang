@@ -3,7 +3,6 @@ package models
 import(
   "time"
   "regexp"
-  "errors"
   "golang.org/x/crypto/bcrypt"
 )
 
@@ -58,7 +57,7 @@ func (this *User) Insert() error {
 func (this *User) SetPassword(password string) error{
   hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
   if err != nil{
-    return errors.New("Error cifrado de password")
+    return errorPasswordEncryption
   }
   this.Password = string(hash)
   return nil
@@ -94,7 +93,6 @@ func ValidUsername(username string) error {
   if username == ""{
     return errorUsername
   }
-
   if len(username) < 5{
     return errorShortUsername
   }
@@ -102,8 +100,6 @@ func ValidUsername(username string) error {
   if len(username) > 60{
     return errorLargeUsername
   }
-
-
   return nil
 }
 
@@ -115,8 +111,8 @@ func ValidEmail(email string) error{
 }
 
 func ValidPassword(password string) error{
-  if len(password) < 5{
-    return errorShortUsername
+  if password == ""{
+    return errorPassword
   }
   return nil
 }
@@ -125,7 +121,7 @@ func Login(username, password string) error{
   user := GetUserByUsername(username)
   err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
   if err != nil{
-    return errors.New("Usuario o contraseña invalidos")
+    return errorLogin
   }
   return nil
 }

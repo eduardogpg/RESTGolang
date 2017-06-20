@@ -1,13 +1,14 @@
 package utils
 
 import(
+  "fmt"
   "time"
   "net/http"
   "github.com/satori/go.uuid"
 )
 
 const(
-  cookieName = "goWebTutorial"
+  cookieName = "rosadito"
   cookieExprires = 24 * 2 * time.Hour
 )
 
@@ -22,14 +23,16 @@ func SetSession(w http.ResponseWriter, r *http.Request){
     }
     http.SetCookie(w, cookie)
   }
-  //5b a2c
 }
 
 func GetValCookie(r *http.Request) string {
   if cookie, err := r.Cookie(cookieName); err == nil {
     val := cookie.Value
     return val
+  }else{
+    fmt.Println(err)  
   }
+   
   return ""
 }
 
