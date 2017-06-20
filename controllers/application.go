@@ -6,6 +6,8 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request){
-  utils.RenderTemplate(w, "application/index", nil)
+  context := make(map[string]interface{})
+  context["Authenticated"] = utils.IsAuthenticated(r)
+  
+  utils.RenderTemplate(w, "application/index", context)
 }
-

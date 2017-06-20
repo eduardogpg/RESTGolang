@@ -13,10 +13,13 @@ func main() {
   mux := mux.NewRouter()
 
   mux.HandleFunc("/", controllers.Index).Methods("GET")
+  // mux.HandleFunc("/protected", controllers.Protected).Methods("GET")
+
   mux.HandleFunc("/users/new", controllers.NewUser).Methods("GET", "POST")
   mux.HandleFunc("/users/login", controllers.Login).Methods("GET", "POST")
   mux.HandleFunc("/users/logout", controllers.Logout).Methods("GET")
-    
+  mux.Handle("/users/edit", controllers.Authentication(controllers.EditUser)).Methods("GET")
+
   mux.HandleFunc("/api/v1/users/", v1.GetUsers).Methods("GET")
   mux.HandleFunc("/api/v1/users/{id:[0-9]+}", v1.GetUser).Methods("GET")
   mux.HandleFunc("/api/v1/users/", v1.CreateUser).Methods("POST")

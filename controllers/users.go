@@ -28,15 +28,23 @@ func NewUser(w http.ResponseWriter, r *http.Request){
   utils.RenderTemplate(w, "users/new", context)
 }
 
+func EditUser(w http.ResponseWriter, r *http.Request){
+  context := make(map[string]interface{})
+  utils.RenderTemplate(w, "users/edit", context)
+}
+
 func Login(w http.ResponseWriter, r *http.Request){
   context := make(map[string]interface{})
-  
+
   if r.Method == "POST"{
     err := models.Login(r.FormValue("username"), r.FormValue("password"))
     if err != nil{
       context["Error"] = err.Error()
     }else{
+      createCookie(w)
+      utils.SetSession(w, r)
       http.Redirect(w, r, "/", http.StatusSeeOther)
+      return
     }
   }
   utils.RenderTemplate(w, "users/login", context)
@@ -44,5 +52,30 @@ func Login(w http.ResponseWriter, r *http.Request){
 
 func Logout(w http.ResponseWriter, r *http.Request){
   utils.DeleteSession(w)
+  deleteCookie(w)
   http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
+
+func createCookie(w http.ResponseWriter){
+  cookie := &http.Cookie{
+    Name: "cookie_name",
+    Value: "slipknot!",
+    Path: "/",
+  }//You can only store about 4kb of data in a cookie
+
+  //Expires: expire
+  //time.Now().AddDate( year int, month int, day int)
+  http.SetCookie(w, cookie)
+}
+
+func deleteCookie(w http.ResponseWriter){
+  cookie := &http.Cookie{
+    Name: "cookie_name",
+    Value: "",
+    MaxAge: -1,
+  }
+  http.SetCookie(w, cookie)
+}
+
+
+
