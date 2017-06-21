@@ -64,11 +64,13 @@ func UrlServer() string {
 }
 
 func TemplatesDir() string{
-  return fmt.Sprintf("%s/templates/**/*.html", server.templateDir)
+  //return fmt.Sprintf("%s/templates/**/*.html", server.templateDir)
+  return "templates/**/*.html"
 }
 
 func ErrorTemplateDir() string{
-  return fmt.Sprintf("%s/templates/error.html", server.templateDir)
+  //return fmt.Sprintf("%s/templates/error.html", server.templateDir)
+  return "templates/error.html"
 }
 
 func AssetsDir() string{
