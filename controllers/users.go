@@ -1,6 +1,7 @@
 package controllers
 
 import(
+  "fmt"
   "net/http"
   "../utils"
   "../models"
@@ -32,7 +33,21 @@ func EditUser(w http.ResponseWriter, r *http.Request){
   context := make(map[string]interface{})
   user := utils.GetUser(r)
   context["User"] = user
+  context["SafetyId"] = utils.GetValCookie(r)
   utils.RenderTemplate(w, "users/edit", context)
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request){
+  id := r.FormValue("id")
+  username := r.FormValue("username")
+  email := r.FormValue("email")
+  
+  fmt.Println(id)
+  fmt.Println(username)
+  fmt.Println(email)
+
+  user := utils.GetUser(r) //Se enviarán las cookies por que estamos en el mismo dominio!
+  utils.SendData(w, user)
 }
 
 func Login(w http.ResponseWriter, r *http.Request){

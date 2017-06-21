@@ -82,7 +82,7 @@ func (this *User) Valid() error{
   if err := ValidUsername(this.Username); err != nil{
     return err 
   }
-
+  
   if err := ValidPassword(this.Password); err != nil{
     return err
   }

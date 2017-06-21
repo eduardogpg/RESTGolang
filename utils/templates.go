@@ -17,6 +17,7 @@ func RenderErrorTemplate(w http.ResponseWriter, status int){
 
 func RenderTemplate(w http.ResponseWriter, name string, data interface{}){
   w.Header().Set("Content-Type", "text/html")
+  
   err := templates.ExecuteTemplate(w, name, data)
   
   if err != nil{

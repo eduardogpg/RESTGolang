@@ -1,7 +1,6 @@
 package utils
 
 import(
-  "fmt"
   "sync"
   "time"
   "net/http"
@@ -17,14 +16,14 @@ const(
 // https://golang.org/pkg/sync/#RWMutex
 var Sessions = struct{
   m map[string] *models.User
-  sync.RWMutex
+  sync.RWMutex        //RWMutex is a reader/writer mutual exclusion lock.
 }{m: make(map[string] *models.User)}
 
 //https://golang.org/src/net/http/cookie.go
 func SetSession(user *models.User, w http.ResponseWriter, r *http.Request){
-  Sessions.RLock()
-  defer Sessions.RUnlock()
-
+  Sessions.Lock()
+  defer Sessions.Unlock()
+  
   uuid := uuid.NewV4().String()
   Sessions.m[uuid] = user
 
@@ -32,33 +31,29 @@ func SetSession(user *models.User, w http.ResponseWriter, r *http.Request){
     Name: cookieName,
     Value: uuid,
     Expires: time.Now().Add(cookieExprires),
-    Path: "/", //The cookie will be available to all pages and subdirectories.
+    Path: "/",
   }
   http.SetCookie(w, cookie)
 }
 
 func getUserBySession(key string) (*models.User){
-  Sessions.RLock()
-  defer Sessions.RUnlock()
+  Sessions.Lock()
+  defer Sessions.Unlock()
 
   if user, ok := Sessions.m[key]; ok{
     return user
   }
-  return nil
+  return &models.User{}
 }
 
 func GetUser(r *http.Request) (*models.User) {
-  val := getValCookie(r)
+  val := GetValCookie(r)
   return getUserBySession(val)
 }
 
-func getValCookie(r *http.Request) string {
+func GetValCookie(r *http.Request) string {
   if cookie, err := r.Cookie(cookieName); err == nil {
-    val := cookie.Value
-    fmt.Println(val)
-    return val
-  }else{
-    fmt.Println(err)  
+    return cookie.Value
   }
   return ""
 }
@@ -74,5 +69,5 @@ func DeleteSession(w http.ResponseWriter) {
 }
 
 func IsAuthenticated(r *http.Request) bool{
-  return getValCookie(r) != ""
+  return GetValCookie(r) != ""
 }

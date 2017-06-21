@@ -71,6 +71,10 @@ func ErrorTemplateDir() string{
   return fmt.Sprintf("%s/templates/error.html", server.templateDir)
 }
 
+func AssetsDir() string{
+  return fmt.Sprintf("%s/assets", server.templateDir)
+}
+
 func (this *ServerConfig) url() string {
   return fmt.Sprintf("%s:%d", this.host, this.port)
 }
